@@ -1,5 +1,5 @@
 ### partycopy
-> Simple CLI file transfer utility for copyparty servers.
+> Simple CLI file transfer utility for [copyparty](https://github.com/9001/copyparty) servers.
 
 The utility acts similarly to **scp** and uses **curl** and **jq** under the hood.
 
@@ -40,3 +40,6 @@ where <server_name> corresponds to a configuration file named "server_name.cfg" 
 For instance, to upload the file *partycopy.7z* to the *junk* directory on the *homelab* server, run:
 
 > pcp homelab partycopy.7z junk
+
+##### Disclaimer
+Please note this is an unoffical project and is not endorsed by the author(s) of copyparty. I am just a fan and use it on my homelab.
