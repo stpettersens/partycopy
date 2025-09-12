@@ -9,6 +9,7 @@ Requirements to build:
 * upx
 
 Requirements to run:
+* a copyparty server
 * curl
 * jq
 
