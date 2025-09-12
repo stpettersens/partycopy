@@ -3,12 +3,12 @@
 
 The utility acts similarly to **scp** and uses **curl** and **jq** under the hood.
 
-Requirements build:
+Requirements to build:
 * make
 * ldc2
 * upx
 
-Requirments run:
+Requirements to run:
 * curl
 * jq
 
