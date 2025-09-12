@@ -31,6 +31,8 @@ First create a server config file under */etc/partycopy/server_name.cfg* (or sam
 <response_format (e.g. json)>
 ```
 
+The utility works best if you have Read-Write-Delete permissions for your server user on the remote directory.
+
 Run the utility (`partycopy`, symlinked to **pcp**) to upload a **file** to your **remote_directory** (as named under your copyparty server's config file).
 
 > pcp <server_name> <local_file> <remote_directory> ["--verbose"]
