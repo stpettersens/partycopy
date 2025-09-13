@@ -7,21 +7,21 @@ import std.process;
 import std.algorithm;
 
 struct copyparty_server {
-	string username;
-	string password;
-	string proto;
-	string domain;
-	string want_format;
+    string username;
+    string password;
+    string proto;
+    string domain;
+    string want_format;
     bool none;
 }
 
 int upload_file_to_copyparty(bool verbose, copyparty_server* s, string dir, string file) {
     string endpoint = format("%s://%s/%s/", s.proto, s.domain, dir);
-	string curl_switch = " ";
+    string curl_switch = " ";
 
-	version(Windows) {
-		curl_switch = " -k";
-	}
+    version(Windows) {
+        curl_switch = " -k";
+    }
 
     string request1 = format("curl%s -s -I %s%s --user %s:%s",
     curl_switch,
@@ -65,66 +65,65 @@ int upload_file_to_copyparty(bool verbose, copyparty_server* s, string dir, stri
         }
     }
 
-	string request3 = format("curl%s -s -u %s:%s -F f=@%s %s",
-	curl_switch,
-	s.username,
-	s.password,
-	file,
-	endpoint);
+    string request3 = format("curl%s -s -u %s:%s -F f=@%s %s",
+    curl_switch,
+    s.username,
+    s.password,
+    file,
+    endpoint);
 
     request3 ~= format("?want=%s", s.want_format);
     request3 ~= " | jq .status";
 
-	auto upload = executeShell(request3);
+    auto upload = executeShell(request3);
 
-    if (verbose)
-        writeln(request3);
-
-	if (upload.status != 0) {
-		writefln("Failed to upload file: '%s'.", file);
+    if (verbose) writeln(request3);
+    if (upload.status != 0) {
+        writefln("Failed to upload file: '%s'.", file);
         writefln("Server status: %s", upload.output);
-		return -1;
-	}
+        return -1;
+    }
 
-	writefln("Uploaded file: '%s'.", file);
+    writefln("Uploaded file: '%s'.", file);
     writefln("Server status: %s", upload.output);
-	return 0;
+    return 0;
 }
 
 copyparty_server read_server_cfg(string server_name) {
-	copyparty_server s;
+    copyparty_server s;
     string cfg = format("/etc/partycopy/%s.cfg", server_name);
     version(Windows) {
         cfg = buildPath(getcwd(), format("%s.cfg", server_name));
     }
-	if (cfg.exists) {
-		auto f = File(cfg);
-		foreach (line; f.byLine()) {
-			string l = to!string(line);
-			if (l.startsWith("#")) {
-				// Ignore any comment lines.
-				continue;
-			}
 
-			if (s.username.length == 0)
-				s.username = to!string(l);
+    if (cfg.exists) {
+        auto f = File(cfg);
+        foreach (line; f.byLine()) {
+            string l = to!string(line);
+            if (l.startsWith("#")) {
+                // Ignore any comment lines.
+                continue;
 
-			else if (s.password.length == 0)
-				s.password = to!string(l);
+            if (s.username.length == 0)
+                s.username = to!string(l);
 
-			else if (s.proto.length == 0)
-				s.proto = to!string(l);
+            else if (s.password.length == 0)
+                s.password = to!string(l);
 
-			else if (s.domain.length == 0)
-				s.domain = to!string(l);
+            else if (s.proto.length == 0)
+                s.proto = to!string(l);
 
-			else if (s.want_format.length == 0)
-				s.want_format = to!string(l).toLower();
-		}
+            else if (s.domain.length == 0)
+                s.domain = to!string(l);
+
+            else if (s.want_format.length == 0)
+                s.want_format = to!string(l).toLower();
+            }
+        }
 
         s.none = false;
-		return s;
-	}
+        return s;
+    }
 
     writefln("Aborting, there was no server configuration for server named '%s'", server_name);
     s.none = true;
