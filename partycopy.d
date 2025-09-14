@@ -17,7 +17,7 @@ struct copyparty_server {
 
 int upload_file_to_copyparty(bool verbose, copyparty_server* s, string dir, string file) {
     string endpoint = format("%s://%s/%s/", s.proto, s.domain, dir);
-    string curl_switch = " ";
+    string curl_switch = "";
 
     version(Windows) {
         curl_switch = " -k";
