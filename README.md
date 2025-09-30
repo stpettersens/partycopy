@@ -44,9 +44,9 @@ where <server_name> corresponds to a configuration file named "server_name.cfg",
 
 For instance, to upload the file *partycopy.7z* to the *junk* directory on the *homelab* server, run:
 
-> pcp homelab partycopy.7z junk PUTS
+> pcp homelab partycopy.7z junk PUT
 
-The PUTS or 0 operation is the default, so it can be omitted for the same effect.
+The PUT or 0 operation is the default, so it can be omitted for the same effect.
 
 ##### Delete (remote) file.
 
