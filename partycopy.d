@@ -1,3 +1,17 @@
+/*
+  Partycopy (partycopy/pcp)
+  Simple CLI file transfer utility for copyparty servers.
+
+  Author: Sam Saint-Pettersen, September/October 2025.
+  s.stpettersen+github at gmail dot com
+  https://stpettersen.xyz
+
+  This program/script is public domain.
+  See LICENSE file (Unlicense):
+
+  This is not an official project of Copyparty.
+*/
+
 import std.file;
 import std.path;
 import std.conv;
