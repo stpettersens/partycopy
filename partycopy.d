@@ -7,7 +7,7 @@
   https://stpettersen.xyz
 
   This program/script is public domain.
-  See LICENSE file (Unlicense):
+  See LICENSE file (Unlicense).
 
   This is not an official project of Copyparty.
 */
