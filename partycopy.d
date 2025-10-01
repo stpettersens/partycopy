@@ -6,7 +6,7 @@
   s.stpettersen+github at gmail dot com
   https://stpettersen.xyz
 
-  This program/script is public domain.
+  This program is public domain.
   See LICENSE file (Unlicense).
 
   This is not an official project of Copyparty.
