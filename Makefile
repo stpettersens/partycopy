@@ -31,4 +31,5 @@ install:
 	mkdir -p /etc/partycopy
 	cp partycopy /usr/local/bin
 	ln -sf /usr/local/bin/partycopy /usr/local/bin/pcp
-
+	mkdir -p /usr/share/partycopy
+	cp LICENSE /usr/share/partycopy
