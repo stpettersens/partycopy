@@ -8,7 +8,7 @@
 # Usage: wget -qO - https://sh.homelab.stpettersen.xyz/partycopy/setup-partycopy.sh | sudo bash
 #
 # OR SAFER WAY, INSPECTING THE SCRIPT CONTENTS BEFORE RUNNING:
-# > wget -O setup-slax.sh https://sh.homelab.stpettersen.xyz/slax/setup-partycopy.sh
+# > wget -O setup-slax.sh https://sh.homelab.stpettersen.xyz/partycopy/setup-partycopy.sh
 # > cat setup-partycopy.sh
 # > sudo bash setup-partycopy.sh
 

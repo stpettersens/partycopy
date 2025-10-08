@@ -65,16 +65,29 @@ copyparty_server* s, string dir, string file) {
             writeln();
         }
 
+        bool fforbidden = false;
         bool fexists = true;
         if (exists(file)) {
             auto f = File(file);
             foreach (line; f.byLine()) {
                 string l = to!string(line);
+                if (l.startsWith("403 forbidden")) {
+                    fforbidden = true;
+                    break;
+                }
                 if (l.startsWith("404 not found")) {
                     fexists = false;
                     break;
                 }
             }
+        }
+
+        if (fforbidden) {
+            writefln("Failed to download remote file: '%s'", file);
+            writefln("from copyparty server '%s' remote '%s' as Forbidden.", server_name, dir);
+            writefln("PLEASE CHECK YOUR USERNAME AND PASSWORD.");
+            remove(file);
+            return -1;
         }
 
         if (!fexists) {
@@ -265,7 +278,7 @@ int display_usage(string program, int exit_code) {
 }
 
 int display_version(string program) {
-    writefln("Partycopy (%s) v0.1.0 (2025-09-30)", get_exe(program));
+    writefln("Partycopy (%s) v0.1.0 (2025-10-08)", get_exe(program));
     return 0;
 }
 
