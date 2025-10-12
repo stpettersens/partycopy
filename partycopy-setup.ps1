@@ -100,6 +100,7 @@ function Main {
 
     rm -fo $archive
     echo "Done."
+    Read-Host - Prompt ""
 }
 
 Main
