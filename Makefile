@@ -5,12 +5,14 @@ rm=rm
 uname := $(shell uname)
 arch := $(shell uname -m)
 
-sha256sum=sha256sum partycopy_linux_$(arch).tar.gz > partycopy_linux_$(arch)_sha256.txt
+sha256sumA=sha256sum partycopy_linux_$(arch).tar.gz > partycopy_linux_$(arch)_sha256.txt
+sha256sumB=sha256sum setup-partycopy.sh > setup-partycopy_sha256.txt
 
 # https://github.com/stpettersens/uname-windows
 # https://github.com/stpettersens/sha256_chksum
 ifeq ($(uname),Windows)
-	sha256sum=sha256_chksum partycopy_win64.zip
+	sha256sumA=sha256_chksum partycopy_win64.zip
+	sha256sumB=sha256_chksum partycopy-setup.ps1
 	o=.obj
 	exe=.exe
 	rm=del
@@ -33,11 +35,11 @@ clean:
 
 win_package:
 	7z u -tzip partycopy_win64.zip partycopy$(exe) LICENSE
-	$(sha256sum)
+	$(sha256sumA)
 
 linux_package:
 	tar -czf partycopy_linux_$(arch).tar.gz partycopy LICENSE
-	$(sha256sum)
+	$(sha256sumA)
 
 install:
 	@echo "Please run as sudo/doas."
@@ -48,5 +50,6 @@ install:
 	cp LICENSE /usr/share/partycopy
 
 upload:
+	$(sha256sumB)
 	@echo
 	@copyparty_sync
