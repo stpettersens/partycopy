@@ -2,4 +2,5 @@ partycopy
 *sha256.txt
 *.cfg
 *.exe
+*.tar.gz
 *.zip
