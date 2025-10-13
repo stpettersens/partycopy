@@ -88,7 +88,7 @@ function Main {
     # Prompt to download profiles for partycopy.
     echo ""
     $profiles = Read-Host -Prompt "Download available profiles for partycopy? (Y/n) "
-    if ($profiles -eq "Y") {
+    if ($profiles -ieq "Y") {
         Install-Profiles $install_dir
     }
     if ($profiles -eq "") {
