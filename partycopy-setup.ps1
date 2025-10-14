@@ -24,7 +24,7 @@ function SHA256-Cksum {
     param(
         [string]$file
     )
-    $cksum_file = $file.Split(".")[0] + "_sha256.txt";
+    $cksum_file = $file.Split(".")[0] + "_sha256.txt"
     $cksum_url = "${global:server}/${cksum_file}"
     Invoke-WebRequest $cksum_url -OutFile $cksum_file
     $actual_cksum_file = (Get-Item $cksum_file)
@@ -101,7 +101,7 @@ function Main {
     rm -fo $archive
     echo "Done."
     Write-Host -NoNewLine 'Press any key to continue...';
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
 Main
