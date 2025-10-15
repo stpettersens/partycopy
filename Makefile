@@ -34,7 +34,7 @@ clean:
 	$(rm) partycopy$(exe)
 
 win_package:
-	7z u -tzip partycopy_win64.zip partycopy$(exe) LICENSE uninstall.ps1
+	7z u -tzip partycopy_win64.zip partycopy$(exe) LICENSE
 	$(sha256sumA)
 
 linux_package:
