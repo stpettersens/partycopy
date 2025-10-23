@@ -5,7 +5,11 @@ rm=rm
 uname := $(shell uname)
 arch := $(shell uname -m)
 
-sha256sumA=sha256sum partycopy_linux_$(arch).tar.gz > partycopy_linux_$(arch)_sha256.txt
+ifeq ($(arch),x86_64)
+	arch=amd64
+endif
+
+sha256sumA=sha256sum partycopy_linux_$(arch).tar.gz > partycopy_linux_$(arch).tar_sha256.txt
 sha256sumB=sha256sum setup-partycopy.sh > setup-partycopy_sha256.txt
 
 # https://github.com/stpettersens/uname-windows
