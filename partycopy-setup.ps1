@@ -83,8 +83,6 @@ function Main {
     $install_dir = "C:\Dev\partycopy"
     New-Item -ItemType Directory -Force -Path $install_dir
     Expand-Archive -Force -Path $archive -DestinationPath $install_dir
-    cp -fo "${install_dir}\partycopy.exe" "${install_dir}\pcp.exe"
-
     # Prompt to download profiles for partycopy.
     echo ""
     $profiles = Read-Host -Prompt "Download available profiles for partycopy? (Y/n) "
@@ -94,10 +92,6 @@ function Main {
     if ($profiles -eq "") {
         Install-Profiles $Install_dir
     }
-
-    # Add program(s) to system PATH variable.
-    [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";${install_dir}", [System.EnvironmentVariableTarget]::Machine)
-
     rm -fo $archive
     echo "Done."
     Write-Host -NoNewLine 'Press any key to continue...'
