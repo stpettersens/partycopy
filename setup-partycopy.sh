@@ -67,7 +67,7 @@ is_musl() {
             fi
         done
     fi
-    return m
+    return $m
 }
 
 main() {
