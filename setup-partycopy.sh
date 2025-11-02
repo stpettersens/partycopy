@@ -51,6 +51,15 @@ script_cksm() {
     fi
 }
 
+is_musl() {
+    local musl
+    musl=$(find / -iname '*ld-musl*.so*' 2> /dev/null)
+    if [[ -n $musl ]]; then
+        return 1 # true
+    fi
+    return 0 # false
+}
+
 main() {
     check_is_root
     # Get machine architecture
@@ -63,6 +72,12 @@ main() {
     fi
     local archive
     archive="partycopy_linux_${arch}.tar.gz"
+    local m
+    is_musl
+    m=$?
+    if (( m == 1 )); then
+        archive="partycopy_linux_${arch}_musl.tar.gz"
+    fi
     echo "Installing partycopy (Linux ${arch})..."
     script_cksm
     if [[ -f "${archive}" ]]; then

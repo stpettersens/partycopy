@@ -10,13 +10,15 @@ ifeq ($(arch),x86_64)
 endif
 
 sha256sumA=sha256sum partycopy_linux_$(arch).tar.gz > partycopy_linux_$(arch).tar_sha256.txt
-sha256sumB=sha256sum setup-partycopy.sh > setup-partycopy_sha256.txt
+sha256sumB=sha256sum partycopy-setup.ps1 > partycopy-setup_sha256.txt
+sha256sumC=sha256sum setup-partycopy.sh > setup-partycopy_sha256.txt
 
 # https://github.com/stpettersens/uname-windows
 # https://github.com/stpettersens/sha256_chksum
 ifeq ($(uname),Windows)
 	sha256sumA=sha256_chksum partycopy_win64.zip
 	sha256sumB=sha256_chksum partycopy-setup.ps1
+	sha256sumC=sha256_chksum setup-partycopy.sh
 	o=.obj
 	exe=.exe
 	rm=del
@@ -55,5 +57,6 @@ install:
 
 upload:
 	$(sha256sumB)
+	$(sha256sumC)
 	@echo
 	@copyparty_sync
