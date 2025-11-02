@@ -52,12 +52,22 @@ script_cksm() {
 }
 
 is_musl() {
+    local m
+    m=0
     local musl
     musl=$(find / -iname '*ld-musl*.so*' 2> /dev/null)
     if [[ -n $musl ]]; then
-        return 1 # true
+        local lines
+        readarray -t lines <<< "$musl"
+        for line in "${lines[@]}"; do
+            if [[ "${line}" == "*docker*" ]]; then
+                m=0
+            else
+                m=1
+            fi
+        done
     fi
-    return 0 # false
+    return m
 }
 
 main() {
