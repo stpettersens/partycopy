@@ -20,6 +20,9 @@ import std.string;
 import std.process;
 import std.algorithm;
 
+// https://github.com/stpettersens/human-datetime
+import human_datetime : HumanDateStyle, human_to_unix;
+
 struct copyparty_server {
     string username;
     string password;
@@ -32,7 +35,9 @@ struct copyparty_server {
 enum Op {
     PUT = 0,
     DEL = 1,
-    GET = 2
+    GET = 2,
+    INFO = 3,
+    UPDATE = 4
 }
 
 string get_exe(string program) {
@@ -49,8 +54,47 @@ copyparty_server* s, string dir, string file) {
         curl_switch = " -k";
     }
 
+    long local_file_timestamp = -1L;
+    long remote_file_timestamp = -1L;
+
+    // Op INFO to get information on a remote file.
+    // Op UPDATE get remote file modified date for later compare.
+    if (operation == Op.INFO || operation.Op.UPDATE) {
+        string requestZ = format("curl%s -s -I %s%s --user %s:%s",
+        curl_switch,
+        endpoint,
+        file,
+        s.username,
+        s.password);
+
+        auto responseZ = executeShell(requestZ);
+
+        if (responseZ.status == 0) {
+            if (operation == Op.INFO) {
+                writefln("\n** %s **", file);
+                writeln(responseZ.output);
+                return 0;
+            }
+
+            string[] info = responseZ.output.split('\n');
+            foreach (record; info) {
+                if (record.startsWith("Last-Modified:")) {
+                    string r = record.replace("Last-Modified:", "Last-Modified;");
+                    string date = r.split(';')[1].strip();
+                    remote_file_timestamp = human_to_unix
+                    (date.split(',')[1].strip(), HumanDateStyle.DD_MON_YYYY);
+                }
+            }
+        }
+
+        if (operation == Op.INFO) {
+            writeln("Error: Cannot get INFO for remote file.");
+            return -1;
+        }
+    }
+
     // Op GET to download a remote file.
-    if (operation == Op.GET) {
+    else if (operation == Op.GET) {
         string request0 = format("curl%s -s -O %s%s --user %s:%s",
         curl_switch,
         endpoint,
@@ -126,12 +170,15 @@ copyparty_server* s, string dir, string file) {
         return -1;
     }
 
-    if (operation == Op.PUT) {
+    if (operation == Op.PUT || operation == Op.UPDATE) {
         // Check file exists locally before attempting to upload it.
         if (!file.exists) {
             writefln("Error: File '%s' does not exist locally.", file);
             return -1;
         }
+
+        local_file_timestamp = human_to_unix(to!string(file.timeLastModified).split('.')[0].strip(),
+        HumanDateStyle.DASHED_YYYY_MON_DD);
 
         writefln("Uploading '%s' to copyparty server '%s' remote directory '%s'.",
         file, server_name, dir);
@@ -140,7 +187,13 @@ copyparty_server* s, string dir, string file) {
 
     // PUT Op: If the file exists, delete it first before uploading the replacement file.
     // DEL Op: Just delete the file if it exists.
-    if (operation == Op.PUT || operation == Op.DEL) {
+    // UPDATE Op: Replace the file if local file is newer.
+    if (operation == Op.PUT || operation == Op.DEL || operation == Op.UPDATE) {
+        if (operation == Op.UPDATE && (local_file_timestamp <= remote_file_timestamp)) {
+            writefln("Not uploading file '%s' as remote file is newer.", file);
+            return -1;
+        }
+
         if (operation == Op.DEL && canFind(strip(exists.output), "OK")) {
             writefln("Deleting '%s' from copyparty server '%s' remote directory '%s'.",
             file, server_name, dir);
@@ -174,7 +227,7 @@ copyparty_server* s, string dir, string file) {
         }
     }
 
-    if (operation == Op.PUT) {
+    if (operation == Op.PUT || operation == Op.UPDATE) {
         string request3 = format("curl%s -s -u %s:%s -F f=@%s %s",
         curl_switch,
         s.username,
@@ -273,6 +326,8 @@ int display_usage(string program, int exit_code) {
     writeln("0 (PUT): Upload a file <file> (default action if omitted)");
     writeln("1 (DEL): Delete a remote file <file>.");
     writeln("2 (GET): Download a remote file <file>.");
+    writeln("3 (INFO): Get information for remote file <file>.");
+    writeln("4 (UPDATE): Only upload file <file> if newer than existing remote file <file>.");
     writeln();
     return exit_code;
 }
@@ -313,16 +368,24 @@ int main(string[] args) {
                         iop = 2;
                         break;
 
+                    case "INFO":
+                        iop = 3;
+                        break;
+
+                    case "UPDATE":
+                        iop = 4;
+                        break;
+
                     default:
                         return display_error(program,
-                        "Invalid operation: Must be between PUT, DEL or GET");
+                        "Invalid operation: Must be between PUT, DEL, GET, INFO or UPDATE");
                 }
             }
             else iop = to!int(args[4]);
 
-            if (iop < 0 || iop > 2) {
+            if (iop < 0 || iop > 4) {
                 return display_error
-                (program, "Invalid operation: Must be between 0 and 2");
+                (program, "Invalid operation: Must be between 0 and 4");
             }
             operation = cast(Op)iop;
         }

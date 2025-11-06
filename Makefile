@@ -30,7 +30,7 @@ ifeq ($(uname),CYGWIN_NT-10.0-19044)
 endif
 
 make:
-	ldc2 partycopy.d
+	ldc2 partycopy.d human_datetime.d
 	$(rm) partycopy$(o)
 
 compress:
