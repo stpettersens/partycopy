@@ -360,7 +360,7 @@ private DateTimeTZ create_datetime_tz(string human_datetime, HumanDateStyle styl
         // February constraints.
         if (m == 2) {
             int max = is_leap_year(y) ? 29 : 28;
-            if (d > max)
+            if (d > max || d < 1)
                 throw new Exception(format("February in %d can only have 1-%d days.", y, max));
         }
 
