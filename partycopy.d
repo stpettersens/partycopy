@@ -20,7 +20,7 @@ import std.string;
 import std.process;
 import std.algorithm;
 
-// https://github.com/stpettersens/human-datetime
+// https://github.com/stpettersens/human-datetime.d
 import human_datetime : HumanDateStyle, human_to_unix;
 
 struct copyparty_server {
@@ -333,7 +333,7 @@ int display_usage(string program, int exit_code) {
 }
 
 int display_version(string program) {
-    writefln("Partycopy (%s) v0.1.0 (2025-10-08)", get_exe(program));
+    writefln("Partycopy (%s) v0.1.0 (2025-11-07)", get_exe(program));
     return 0;
 }
 

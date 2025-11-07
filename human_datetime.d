@@ -1,4 +1,4 @@
-/* Simple functions for working with human readable dates and times.
+/* Simple functions for working with human readable dates and times for D (dlang).
    Written by Sam Saint-Pettersen, 2025.
 
    Released to Public domain. Use as you wish.
