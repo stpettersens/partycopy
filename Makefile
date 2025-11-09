@@ -10,6 +10,7 @@ ifeq ($(arch),x86_64)
 endif
 
 sha256sumA=sha256sum partycopy_linux_$(arch).tar.gz > partycopy_linux_$(arch).tar_sha256.txt
+sha256sumAA=sha256sum partycopy_linux_$(arch)_musl.tar.gz > partycopy_linux_$(arch)_musl.tar_sha256.txt
 sha256sumB=sha256sum partycopy-setup.ps1 > partycopy-setup_sha256.txt
 sha256sumC=sha256sum setup-partycopy.sh > setup-partycopy_sha256.txt
 
@@ -46,6 +47,10 @@ win_package:
 linux_package:
 	tar -czf partycopy_linux_$(arch).tar.gz partycopy LICENSE
 	$(sha256sumA)
+
+linux_musl_package:
+	tar -czf partycopy_linux_$(arch)_musl.tar.gz partycopy LICENSE
+	$(sha256sumAA)
 
 install:
 	@echo "Please run as sudo/doas."

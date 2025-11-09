@@ -29,6 +29,7 @@ struct copyparty_server {
     string proto;
     string domain;
     string want_format;
+    HumanDateStyle date_format;
     bool none;
 }
 
@@ -37,7 +38,8 @@ enum Op {
     DEL = 1,
     GET = 2,
     INFO = 3,
-    UPDATE = 4
+    UPDATE = 4,
+    GUPDATE = 5
 }
 
 string get_exe(string program) {
@@ -59,7 +61,8 @@ copyparty_server* s, string dir, string file) {
 
     // Op INFO to get information on a remote file.
     // Op UPDATE get remote file modified date for later compare.
-    if (operation == Op.INFO || operation.Op.UPDATE) {
+    // Op GUPDATE get remote file when modified date newer than local file.
+    if (operation == Op.INFO || operation == Op.UPDATE || operation == Op.GUPDATE) {
         string requestZ = format("curl%s -s -I %s%s --user %s:%s",
         curl_switch,
         endpoint,
@@ -82,7 +85,7 @@ copyparty_server* s, string dir, string file) {
                     string r = record.replace("Last-Modified:", "Last-Modified;");
                     string date = r.split(';')[1].strip();
                     remote_file_timestamp = human_to_unix
-                    (date.split(',')[1].strip(), HumanDateStyle.DD_MON_YYYY);
+                    (date.split(',')[1].strip(), s.date_format);
                 }
             }
         }
@@ -93,8 +96,20 @@ copyparty_server* s, string dir, string file) {
         }
     }
 
-    // Op GET to download a remote file.
-    else if (operation == Op.GET) {
+    // Op GET and Op.GUPDATE to download a remote file.
+    if (operation == Op.GET || operation == Op.GUPDATE) {
+        // Downloading a remote file if newer than local
+        if (operation == Op.GUPDATE) {
+            if (file.exists) {
+                local_file_timestamp = human_to_unix(to!string(file.timeLastModified).split('.')[0].strip(), HumanDateStyle.DASHED_YYYY_MON_DD);
+            }
+            if (local_file_timestamp > remote_file_timestamp) {
+                writefln("Not downloading file '%s' as local file is newer.", file);
+                return -1;
+            }
+        }
+
+
         string request0 = format("curl%s -s -O %s%s --user %s:%s",
         curl_switch,
         endpoint,
@@ -141,12 +156,10 @@ copyparty_server* s, string dir, string file) {
             remove(file);
             return -1;
         }
-        else {
-            writefln("Downloading remote file: '%s' from copyparty server '%s' remote dir '%s'.",
-            file, server_name, dir);
-            writeln();
-            return 0;
-        }
+
+        writefln("Downloading remote file: '%s' from copyparty server '%s' remote dir '%s'.", file, server_name, dir);
+        writeln();
+        return 0;
     }
 
     string request1 = format("curl%s -s -I %s%s --user %s:%s",
@@ -189,7 +202,7 @@ copyparty_server* s, string dir, string file) {
     // DEL Op: Just delete the file if it exists.
     // UPDATE Op: Replace the file if local file is newer.
     if (operation == Op.PUT || operation == Op.DEL || operation == Op.UPDATE) {
-        if (operation == Op.UPDATE && (local_file_timestamp <= remote_file_timestamp)) {
+        if (operation == Op.UPDATE && (local_file_timestamp < remote_file_timestamp)) {
             writefln("Not uploading file '%s' as remote file is newer.", file);
             return -1;
         }
@@ -255,6 +268,7 @@ copyparty_server* s, string dir, string file) {
 }
 
 copyparty_server read_server_cfg(string program, string server_name) {
+    bool set_date_format = false;
     copyparty_server s;
     string cfg = format("/etc/partycopy/%s.cfg", server_name);
     version(Windows) {
@@ -287,6 +301,11 @@ copyparty_server read_server_cfg(string program, string server_name) {
 
             else if (s.want_format.length == 0)
                 s.want_format = to!string(l).toLower();
+
+            else if (!set_date_format) {
+                s.date_format = cast(HumanDateStyle)to!int(l);
+                set_date_format = true;
+            }
         }
 
         s.none = false;
@@ -323,17 +342,18 @@ int display_usage(string program, int exit_code) {
     writeln("version: Display version information and exit.");
     writeln();
     writeln("Ops:");
-    writeln("0 (PUT): Upload a file <file> (default action if omitted)");
+    writeln("0 (PUT): Upload a file <file> (default action if omitted).");
     writeln("1 (DEL): Delete a remote file <file>.");
     writeln("2 (GET): Download a remote file <file>.");
     writeln("3 (INFO): Get information for remote file <file>.");
     writeln("4 (UPDATE): Only upload file <file> if newer than existing remote file <file>.");
+    writeln("5 (GUPDATE): Only download remote file <file> of newer than existing file <file>.");
     writeln();
     return exit_code;
 }
 
 int display_version(string program) {
-    writefln("Partycopy (%s) v0.1.0 (2025-11-07)", get_exe(program));
+    writefln("Partycopy (%s) v0.1.0 (2025-11-09)", get_exe(program));
     return 0;
 }
 
@@ -376,16 +396,20 @@ int main(string[] args) {
                         iop = 4;
                         break;
 
+                    case "GUPDATE":
+                        iop = 5;
+                        break;
+
                     default:
                         return display_error(program,
-                        "Invalid operation: Must be between PUT, DEL, GET, INFO or UPDATE");
+                        "Invalid operation: Must be PUT, DEL, GET, INFO, UPDATE or GUPDATE");
                 }
             }
             else iop = to!int(args[4]);
 
-            if (iop < 0 || iop > 4) {
+            if (iop < 0 || iop > 5) {
                 return display_error
-                (program, "Invalid operation: Must be between 0 and 4");
+                (program, "Invalid operation: Must be between 0 and 5");
             }
             operation = cast(Op)iop;
         }
